@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h2>Admin Panel</h2>
+
+<h3 id="welcome"></h3>
+
+<button onclick="logout()">Logout</button>
+
+<hr>
+
+<h3>Create Exam</h3>
+
+<input type="text" id="title" placeholder="Exam Title">
+<input type="number" id="duration" placeholder="Duration (minutes)">
+<button onclick="createExam()">Create</button>
+
+<hr>
+
+<h3>All Exams</h3>
+<ul id="examList"></ul>
+
+<hr>
+
+<h3>Add Question</h3>
+
+<input type="number" id="examId" readonly placeholder="Select exam first">
+
+<input type="text" id="question" placeholder="Question">
+
+<input type="text" id="a" placeholder="Option A">
+<input type="text" id="b" placeholder="Option B">
+<input type="text" id="c" placeholder="Option C">
+<input type="text" id="d" placeholder="Option D">
+
+<input type="text" id="correct" placeholder="Correct (A/B/C/D)">
+
+<button onclick="addQuestion()">Add Question</button>
+
+<script>
+// 🔐 PROTECT ADMIN
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user || user.role !== "teacher") {
+    alert("Access denied");
+    window.location.href = "../login.html";
+}
+
+document.getElementById("welcome").innerText = "Welcome Admin: " + user.name;
+
+// 🚪 LOGOUT
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "../login.html";
+}
+
+// ✅ SELECT EXAM (VERY IMPORTANT FIX)
+function selectExam(id) {
+    document.getElementById("examId").value = id;
+    alert("Selected Exam ID: " + id);
+}
+
+// 📘 CREATE EXAM
+function createExam() {
+    const title = document.getElementById("title").value;
+    const duration = document.getElementById("duration").value;
+
+    if (!title || !duration) {
+        alert("Fill all fields");
+        return;
+    }
+
+    fetch("http://localhost:5000/create-exam", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            title: title,
+            duration: duration,
+           
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        loadExams(); // ✅ refresh list
+    });
+}
+
+// ❓ ADD QUESTION
+function addQuestion() {
+    const examId = document.getElementById("examId").value;
+    const question = document.getElementById("question").value;
+    const a = document.getElementById("a").value;
+    const b = document.getElementById("b").value;
+    const c = document.getElementById("c").value;
+    const d = document.getElementById("d").value;
+    const correct = document.getElementById("correct").value.toUpperCase();
+
+    // 🚨 VALIDATION (this is what you were missing)
+    if (!examId || !question || !a || !b || !c || !d || !correct) {
+        alert("Fill ALL fields properly!");
+        return;
+    }
+
+    fetch("http://localhost:5000/add-question", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            exam_id: examId,
+            question_text: question,
+            option_a: a,
+            option_b: b,
+            option_c: c,
+            option_d: d,
+            correct_answer: correct
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+
+        // 🧹 CLEAR FIELDS AFTER ADD
+        document.getElementById("question").value = "";
+        document.getElementById("a").value = "";
+        document.getElementById("b").value = "";
+        document.getElementById("c").value = "";
+        document.getElementById("d").value = "";
+        document.getElementById("correct").value = "";
+    });
+}
+
+// 📋 LOAD EXAMS
+function loadExams() {
+    fetch("http://localhost:5000/exams")
+    .then(res => res.json())
+    .then(data => {
+        const list = document.getElementById("examList");
+        list.innerHTML = "";
+
+        if (data.length === 0) {
+            list.innerHTML = "<p>No exams created yet</p>";
+            return;
+        }
+
+        data.forEach(exam => {
+            const li = document.createElement("li");
+
+            li.innerHTML = `
+                ${exam.title} (ID: ${exam.id})
+                <button onclick="selectExam(${exam.id})">Select</button>
+                <button onclick="deleteExam(${exam.id})">Delete</button>
+            `;
+
+            list.appendChild(li);
+        });
+    });
+}
+
+// ❌ DELETE EXAM
+function deleteExam(id) {
+    fetch(`http://localhost:5000/delete-exam/${id}`, {
+        method: "DELETE"
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        loadExams();
+    });
+}
+
+// 🚀 LOAD ON START
+loadExams();
+</script>
+
+</body>
+</html>
