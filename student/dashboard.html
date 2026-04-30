@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head><link rel="stylesheet" href="../style.css"></head>
+<body class="dashboard-page">
+<div class="wrapper">
+<div class="container">
+
+<h2>Dashboard</h2>
+
+<h3 id="welcome"></h3>
+
+<button onclick="logout()">Logout</button>
+
+<ul id="examList"></ul>
+</div>
+</div>
+
+<script>
+// 🔐 PROTECT PAGE
+const user = localStorage.getItem("user");
+
+if (!user) {
+    alert("Please login first!");
+    window.location.href = "student/login.html";
+}
+
+// 👤 SHOW USER NAME
+const userData = JSON.parse(user);
+document.getElementById("welcome").innerText = "Welcome, " + userData.name;
+
+// 🚪 LOGOUT
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "../login.html";
+}
+
+// 📚 LOAD EXAMS
+fetch("http://localhost:5000/exams")
+.then(res => res.json())
+.then(data => {
+    const list = document.getElementById("examList");
+
+    data.forEach(exam => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${exam.title}
+            <button onclick="startExam(${exam.id})">Start</button>
+        `;
+        list.appendChild(li);
+    });
+});
+
+// ▶ START EXAM
+function startExam(id) {
+    localStorage.setItem("examId", id);
+    window.location.href = "exam.html";
+}
+</script>
+
+</body>
+</html>
