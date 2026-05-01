@@ -20,24 +20,22 @@
 </div>
 
 <script>
-// GET DATA
 const data = JSON.parse(localStorage.getItem("resultData"));
 
 const scoreElement = document.getElementById("score");
 const container = document.getElementById("details");
 
-// IF NO DATA
 if (!data) {
     scoreElement.innerText = "Error: No result found";
 } else {
 
-    // SHOW SCORE
+   
     scoreElement.innerText = "Score: " + data.score;
 
-    // CLEAR OLD CONTENT
+    
     container.innerHTML = "";
 
-    // LOOP THROUGH QUESTIONS
+    
     data.results.forEach((r, index) => {
 
         const div = document.createElement("div");
