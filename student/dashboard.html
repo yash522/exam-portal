@@ -16,7 +16,6 @@
 </div>
 
 <script>
-// 🔐 PROTECT PAGE
 const user = localStorage.getItem("user");
 
 if (!user) {
@@ -24,17 +23,16 @@ if (!user) {
     window.location.href = "student/login.html";
 }
 
-// 👤 SHOW USER NAME
 const userData = JSON.parse(user);
 document.getElementById("welcome").innerText = "Welcome, " + userData.name;
 
-// 🚪 LOGOUT
+
 function logout() {
     localStorage.removeItem("user");
     window.location.href = "../login.html";
 }
 
-// 📚 LOAD EXAMS
+
 fetch("http://localhost:5000/exams")
 .then(res => res.json())
 .then(data => {
@@ -50,7 +48,6 @@ fetch("http://localhost:5000/exams")
     });
 });
 
-// ▶ START EXAM
 function startExam(id) {
     localStorage.setItem("examId", id);
     window.location.href = "exam.html";
