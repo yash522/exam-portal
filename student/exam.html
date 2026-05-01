@@ -22,15 +22,9 @@
     </div>
 
 <script>
-// ----------------------
-// TIME TRACKING
-// ----------------------
 let questionStartTime = Date.now();
 let timeSpent = {};
 
-// ----------------------
-// GET EXAM ID
-// ----------------------
 const examId = localStorage.getItem("examId");
 
 if (!examId) {
@@ -38,9 +32,6 @@ if (!examId) {
     window.location.href = "dashboard.html";
 }
 
-// ----------------------
-// TIMER SETUP
-// ----------------------
 let duration = 0;
 let timerInterval;
 
@@ -76,9 +67,6 @@ function startTimer() {
     }, 1000);
 }
 
-// ----------------------
-// LOAD QUESTIONS (FIXED)
-// ----------------------
 fetch(`http://localhost:5000/questions/${examId}`)
 .then(res => res.json())
 .then(data => {
@@ -105,7 +93,6 @@ fetch(`http://localhost:5000/questions/${examId}`)
         container.appendChild(div);
     });
 
-    // ✅ 🔥 THIS IS THE MISSING PART
     document.querySelectorAll("input[type=radio]").forEach(input => {
         input.addEventListener("change", (e) => {
             const qid = e.target.name.replace("q", "");
@@ -114,9 +101,6 @@ fetch(`http://localhost:5000/questions/${examId}`)
     });
 });
 
-// ----------------------
-// RECORD TIME FUNCTION
-// ----------------------
 function recordTime(qid) {
     const now = Date.now();
 
@@ -129,9 +113,6 @@ function recordTime(qid) {
     questionStartTime = now;
 }
 
-// ----------------------
-// SUBMIT EXAM (unchanged)
-// ----------------------
 function submitExam() {
     clearInterval(timerInterval);
 
